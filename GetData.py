@@ -8,7 +8,6 @@ Github: https://github.com/littleseven2003
 
 import git
 import os
-import pandas as pd
 
 class RepoManager:
     def __init__(self, repo_url, local_path='./repo'):
