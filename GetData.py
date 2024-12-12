@@ -19,7 +19,7 @@ class RepoManager:
         # 检查仓库是否已经存在
         if not os.path.exists(self.local_path):
             print(f"Cloning repository from {self.repo_url}...")
-            git.Repo.clone_from(self.repo_url, self.local_path)
+            git.Repo.clone_from(self.repo_url, self.local_path, mirror=True)
         else:
             print("Repository already exists, no need to clone.")
 
