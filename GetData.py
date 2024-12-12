@@ -8,6 +8,7 @@ Github: https://github.com/littleseven2003
 
 import git
 import os
+import pandas
 
 class RepoManager:
     def __init__(self, repo_url, local_path='./repo'):
@@ -22,6 +23,25 @@ class RepoManager:
         else:
             print("Repository already exists, no need to clone.")
 
+
+class Commits:
+    def __init__(self, local_path='./repo'):
+        self.local_path = local_path
+
+    def get_commit_data(self, branch='main'):
+        # 打开现有的Git仓库
+        repo = git.Repo(self.local_path)
+
+        # 提取提交历史
+        commits = list(repo.iter_commits(branch))
+        commit_dates = [commit.committed_datetime for commit in commits]
+
+        # 转换为DataFrame
+        df = pandas.DataFrame(commit_dates, columns=['date'])
+        df['date'] = pandas.to_datetime(df['date'], utc=True)
+        df.set_index('date', inplace=True)
+
+        return df
 
 if __name__ == "__main__":
     # Your main code logic goes here
