@@ -53,7 +53,11 @@ class Commits:
 
         commit_data = []
         for commit in commits:
-            commit_data.append({'date': commit.committed_datetime, 'message': commit.message, 'category': None})
+            commit_data.append({'date': commit.committed_datetime,
+                                'message': commit.message,
+                                'category': None,
+                                'author': commit.author.name,
+                                })
         df = pandas.DataFrame(commit_data)
         df['date'] = pandas.to_datetime(df['date'], utc=True)
         df.set_index('date', inplace=True)
