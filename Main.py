@@ -35,8 +35,10 @@ if __name__ == "__main__":
     visualizer = Visualizer()
 
     commits = Commits()
-    commit_data = commits.get_commit_data('main')
-    visualizer.visualize_commit_frequency('main', commit_data)
+    commit_data_all = commits.get_commit_data_all('dev_1203')
+    commit_data_main = commits.get_commit_data_main()
+    visualizer.visualize_commit_frequency('dev_1203', commit_data_all)
+    visualizer.visualize_commit_frequency('main', commit_data_main)
 
 
 
