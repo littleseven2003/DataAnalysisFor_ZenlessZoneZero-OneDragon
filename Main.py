@@ -5,6 +5,7 @@ Main.py
 Author: 筱柒_littleseven
 Github: https://github.com/littleseven2003
 """
+
 import matplotlib.pyplot as plt
 from GetData import RepoManager, Commits
 
@@ -13,9 +14,10 @@ REPO_URL = 'https://github.com/DoctorReid/ZenlessZoneZero-OneDragon'
 class Visualizer:
     def __init__(self):
         pass
-    def visualize_commit_frequency(self, branch, commit_data):
+    def visualize_commit_frequency(self, branch='main'):
+        self.commit_date = commits.get_commit_data(branch)
         # 统计并可视化 提交 频率
-        commit_frequency = commit_data.resample('W').size() # 按周进行重采样
+        commit_frequency = self.commit_date.resample('W').size() # 按周进行重采样
 
         plt.figure(figsize = (15, 10))
         commit_frequency.plot(kind = 'bar')
@@ -25,6 +27,19 @@ class Visualizer:
         plt.tight_layout()
         plt.show()
 
+    def visualize_commit_categories(self, branch='main'):
+        self.commit_categories = commits.categorize_commits(commits.get_commit_data(branch))
+
+        # 统计不同类别提交的数量
+        category_counts = self.commit_categories['category'].value_counts()
+
+        # 绘制饼图
+        plt.figure(figsize=(8, 8))
+        category_counts.plot(kind='pie', autopct='%1.1f%%', startangle=90)
+        plt.title(f'Commit Categories - {branch}')
+        plt.ylabel('')  # Remove y-axis label
+        plt.tight_layout()
+        plt.show()
 
 if __name__ == "__main__":
 
@@ -33,12 +48,11 @@ if __name__ == "__main__":
     repo_manager.clone_repo()
 
     visualizer = Visualizer()
-
     commits = Commits()
-    commit_data_all = commits.get_commit_data_all('dev_1203')
-    commit_data_main = commits.get_commit_data_main()
-    visualizer.visualize_commit_frequency('dev_1203', commit_data_all)
-    visualizer.visualize_commit_frequency('main', commit_data_main)
+
+    visualizer.visualize_commit_frequency()
+    visualizer.visualize_commit_categories('dev_1203')
+
 
 
 

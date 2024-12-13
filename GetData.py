@@ -9,6 +9,7 @@ Github: https://github.com/littleseven2003
 import git
 import os
 import pandas
+import re
 
 class RepoManager:
     def __init__(self, repo_url, local_path='./repo', local_mirror_path='./mirror_repo'):
@@ -46,35 +47,39 @@ class Commits:
         self.local_path = local_path
         self.local_mirror_path = local_mirror_path
 
-    def get_commit_data_all(self, branch='main'):
-        # 打开现有的Git仓库
+    def get_commit_data(self, branch='main'):
         repo = git.Repo(self.local_mirror_path)
-
-        # 提取提交历史
         commits = list(repo.iter_commits(branch))
-        commit_dates = [commit.committed_datetime for commit in commits]
 
-        # 转换为DataFrame
-        df = pandas.DataFrame(commit_dates, columns=['date'])
+        commit_data = []
+        for commit in commits:
+            commit_data.append({'date': commit.committed_datetime, 'message': commit.message, 'category': None})
+        df = pandas.DataFrame(commit_data)
         df['date'] = pandas.to_datetime(df['date'], utc=True)
         df.set_index('date', inplace=True)
 
         return df
 
-    def get_commit_data_main(self):
-        # 打开现有的Git仓库
-        repo = git.Repo(self.local_path)
+    def categorize_commits(self, df):
+        self.df = df.copy()
+        # 使用正则表达式或其他方法对提交信息进行分类
+        self.df['category'] = 'Other'  # 默认类别
 
-        # 提取提交历史
-        commits = list(repo.iter_commits('main'))
-        commit_dates = [commit.committed_datetime for commit in commits]
+        # 定义正则表达式
+        bug_pattern = re.compile(r'(修复|bug)', re.IGNORECASE)
+        feature_pattern = re.compile(r'(新增|加入|增加)', re.IGNORECASE)
+        testing_pattern = re.compile(r'(测试)', re.IGNORECASE)
+        logging_pattern = re.compile(r'(日志)', re.IGNORECASE)
+        optimization_pattern = re.compile(r'(优化|界面|UI|延长|调整|改进|提升)', re.IGNORECASE)
 
-        # 转换为DataFrame
-        df = pandas.DataFrame(commit_dates, columns=['date'])
-        df['date'] = pandas.to_datetime(df['date'], utc=True)
-        df.set_index('date', inplace=True)
+        # 根据正则表达式分类
+        self.df.loc[self.df['message'].str.contains(bug_pattern), 'category'] = 'Bug Fix'
+        self.df.loc[self.df['message'].str.contains(feature_pattern), 'category'] = 'New Feature'
+        self.df.loc[self.df['message'].str.contains(testing_pattern), 'category'] = 'Testing'
+        self.df.loc[self.df['message'].str.contains(logging_pattern), 'category'] = 'Logging'
+        self.df.loc[self.df['message'].str.contains(optimization_pattern), 'category'] = 'Optimization'
 
-        return df
+        return self.df
 
 if __name__ == "__main__":
     # Your main code logic goes here
